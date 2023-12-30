@@ -133,6 +133,9 @@ var box_css = `
 </style>
 `
 
+var socket
+var chat_id
+
 document.addEventListener("DOMContentLoaded", function() {
     // This function will be executed when the DOM is fully loaded
 
@@ -140,10 +143,27 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.insertAdjacentHTML('beforeend', box_css);
     document.body.insertAdjacentHTML('beforeend', box_html);
 
-    inject_chat_box()
+    start_socket_connection()
 });
 
-function inject_chat_box() {
+function add_message_to_box(message){
+    var userMessage = message.text;
+    if (userMessage.trim() !== '') {
+        var chatMessages = $('#chat-messages');
+        if (message.from_user){
+            var newMessage = '<div class="chat-message"><p class="user">User: ' + userMessage + '</p></div>';
+        } else {
+            var newMessage = '<div class="chat-message"><p class="site">Site: ' + userMessage + '</p></div>';
+        }
+        chatMessages.append(newMessage);
+    }
+}
+
+function inject_chat_box(data) {
+    for (let mId in data.messages) {
+        add_message_to_box(data.messages[mId])
+    }
+    
     $(document).ready(function () {
         $('#chat-toggle-btn').click(function () {
             $('#chat-box').toggle();
@@ -180,4 +200,46 @@ function inject_chat_box() {
             chatBody.scrollTop(chatBody.prop("scrollHeight"));
           }
     });
+}
+
+function on_new_message(event){
+    data = JSON.parse(event.data)
+    if (data['command'] == "get_chat"){
+        console.log(data)
+        set_chat_id(data.data.session_token)
+        inject_chat_box(data["data"])
+    }
+}
+
+function send_new_message(socket, message){
+    socket.send(message)
+}
+
+function load_chat_id(){
+    chat_id = localStorage.getItem("chat-token")
+    return chat_id
+}
+
+function set_chat_id(token){
+    alert(1111)
+    localStorage.setItem("chat-token", token)
+}
+
+function on_socket_open(){
+    var data = {
+        "command": "get_chat",
+        "data":{
+            "chat_id": chat_id
+        }
+    }
+    send_new_message(socket, JSON.stringify(data))
+}
+
+function start_socket_connection(){
+    load_chat_id()
+    socket = new WebSocket("ws://localhost:8000/feed")
+    socket.addEventListener('message', on_new_message)
+    socket.addEventListener('open', on_socket_open)
+
+    return socket
 }
