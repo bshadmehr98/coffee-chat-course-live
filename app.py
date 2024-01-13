@@ -11,7 +11,7 @@ settings = dict(
 )
 
 app.config.update(settings)
+app.static('/static', './static')
 
 BaseModel.init_app(app)
-
 

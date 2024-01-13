@@ -189,10 +189,23 @@ function inject_chat_box(data) {
               var chatMessages = $('#chat-messages');
               var newMessage = '<div class="chat-message"><p class="user">User: ' + userMessage + '</p></div>';
               chatMessages.append(newMessage);
+              send_mesasge_to_server(userMessage);
               // Clear the input field after sending
               $('#user-message').val('');
               scrollToBottom();
             }
+          }
+
+          function send_mesasge_to_server(message){
+            var data = {   
+              "command": "new_user_message",
+              "data":{
+                  "chat_id": load_chat_id(),
+                  "message": message
+              }
+            }
+            console.log(data)
+            send_new_message(socket, JSON.stringify(data))
           }
     
           function scrollToBottom() {

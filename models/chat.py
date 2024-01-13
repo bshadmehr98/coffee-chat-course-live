@@ -43,3 +43,10 @@ class Chat(BaseDataClass):
     
     async def add_message(self, message):
         await Chat.MODEL.update_one({"session_token": self.session_token}, {"$push": {"messages": message.to_dict()}})
+
+    @classmethod
+    async def get_unread_chats(cls):
+        chats_raw = await Chat.MODEL.find({})
+        chats = [Chat.to_object(c) for c in chats_raw.objects]
+        return chats
+
