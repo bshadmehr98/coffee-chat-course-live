@@ -217,10 +217,17 @@ function inject_chat_box(data) {
 
 function on_new_message(event){
     data = JSON.parse(event.data)
+    console.log(data)
     if (data['command'] == "get_chat"){
         console.log(data)
         set_chat_id(data.data.session_token)
         inject_chat_box(data["data"])
+    } else if (data['command'] == "new_admin_message") {
+      console.log(data);
+      var chatMessages = $('#chat-messages');
+      var newMessage = '<div class="chat-message"><p class="site">Site: ' + data['data'] + '</p></div>';
+      chatMessages.append(newMessage);
+
     }
 }
 

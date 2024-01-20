@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>Chat Detail</title>
+    </head>
+
+    <body>
+      <p>{{ chat }}</p>
+        <ul id="chat-messages">
+            {% for item in chat.messages %}
+            <li {% if item.from_user %}style="color: blue"{% endif %} >{{ item.ts }} - {{ item.text }}</li>
+            {% endfor %}
+        </ul>
+        <input id="user-message" type="text" name="message" value="">
+        <button id="response_button">Send response</button>
+    </body>
+
+</html>
+
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script>
+  var socket
+var chat_id
+
+document.addEventListener("DOMContentLoaded", function() {
+    start_socket_connection()
+});
+
+function add_message_to_box(message){
+    var userMessage = message.text;
+    if (userMessage.trim() !== '') {
+        var chatMessages = $('#chat-messages');
+        if (message.from_user){
+            var newMessage = '<div class="chat-message"><p class="user">User: ' + userMessage + '</p></div>';
+        } else {
+            var newMessage = '<div class="chat-message"><p class="site">Site: ' + userMessage + '</p></div>';
+        }
+        chatMessages.append(newMessage);
+    }
+}
+
+function start(data) {
+    $(document).ready(function () {
+        $('#response_button').click(function () {
+            sendMessage();
+        });
+
+        function sendMessage() {
+            var userMessage = $('#user-message').val();
+            if (userMessage.trim() !== '') {
+              var chatMessages = $('#chat-messages');
+              var newMessage = '<li>Admin: ' + userMessage + '</i>';
+              chatMessages.append(newMessage);
+              send_mesasge_to_server(userMessage);
+              // Clear the input field after sending
+              $('#user-message').val('');
+            }
+          }
+
+          function send_mesasge_to_server(message){
+            var data = {   
+              "command": "new_admin_message",
+              "data":{
+                "chat_id": "{{chat.session_token}}",
+                  "message": message
+              }
+            }
+            console.log(data)
+            send_new_message(socket, JSON.stringify(data))
+          }
+    
+    });
+}
+
+function on_new_message(event){
+    data = JSON.parse(event.data)
+    console.log(data)
+    if (data['command'] == "get_chat"){
+        set_chat_id(data.data.session_token)
+        inject_chat_box(data["data"])
+    } else if (data['command'] == "new_user_message"){
+      var chatMessages = $('#chat-messages');
+      var newMessage = '<li>User: ' + data["data"] + '</i>';
+      chatMessages.append(newMessage);
+    }
+}
+
+function send_new_message(socket, message){
+    socket.send(message)
+}
+
+function on_socket_open(event){
+  var data = {   
+      "command": "register_admin",
+      "data":{
+        "chat_id": "{{chat.session_token}}",
+      }
+    }
+    send_new_message(socket, JSON.stringify(data))
+
+}
+
+function start_socket_connection(){
+    socket = new WebSocket("ws://localhost:8000/feed")
+    socket.addEventListener('message', on_new_message)
+    socket.addEventListener('open', on_socket_open)
+
+    return socket
+}
+start()
+</script>

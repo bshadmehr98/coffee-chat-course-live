@@ -9,7 +9,7 @@
         <h1>Hello, world!!!!</h1>
         <ul>
             {% for item in chats %}
-            <li><a href="/admin/chat/{{ item.session_token }}">{{ item.session_token }}</a></li>
+            <li><a href="/admin/chats/{{ item.session_token }}">{{ item.session_token }}</a></li>
             {% endfor %}
         </ul>
     </body>
