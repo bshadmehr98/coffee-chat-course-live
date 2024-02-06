@@ -23,8 +23,6 @@ async def clean_closed_connections(connections):
 
 async def clean_closed_clients_all():
     await asyncio.sleep(5)
-    print(admins)
-    print(clients)
     print('Removing closed connections....')
     await clean_closed_connections(clients)
     await clean_closed_connections(admins)
