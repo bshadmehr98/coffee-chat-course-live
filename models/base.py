@@ -2,6 +2,8 @@ import dataclasses
 
 class BaseDataClass():
     def to_dict(self):
+        print("-------")
+        print(self)
         return dataclasses.asdict(self)
     
     @classmethod
@@ -14,7 +16,7 @@ class BaseDataClass():
     
     async def insert_one(self):
         model = self.__class__.MODEL
-        await model.insert_one(self.to_dict())
+        await model.insert_one(self.to_mongo())
 
     @classmethod
     def to_object(cls, data):

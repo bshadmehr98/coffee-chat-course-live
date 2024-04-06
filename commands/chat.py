@@ -32,11 +32,12 @@ app.add_task(clean_closed_clients_all())
 
 
 @new_command
-async def get_chat(ws, data):
+async def get_chat(company_id, ws, data):
     if data["chat_id"] is None:
         chat_data = {
             "session_token": str(uuid4()),
             "created_at": dt.datetime.now(),
+            "company_id": company_id,
             "messages": [
                 {"text": "سلام. به سایت ما خوش اومدی. چجوری میتونم کمکت کنم؟", "ts": dt.datetime.now(), "from_user": False},
             ]
@@ -50,14 +51,14 @@ async def get_chat(ws, data):
     return chat.to_dict()
 
 @new_command
-async def new_user_message(ws, data):
+async def new_user_message(company_id, ws, data):
     chat = await Chat.get_by_token(data["chat_id"])
     if data["chat_id"] in admins:
         await send_message_to_user(admins[data["chat_id"]], "new_user_message", data["message"])
     await chat.add_message(Message(data["message"], datetime.now(), True))
 
 @new_command
-async def new_admin_message(ws, data):
+async def new_admin_message(company_id, ws, data):
     chat = await Chat.get_by_token(data["chat_id"])
     await chat.add_message(Message(data["message"], datetime.now(), False))
     if data["chat_id"] in clients:
@@ -65,5 +66,5 @@ async def new_admin_message(ws, data):
         return {}
 
 @new_command
-async def register_admin(ws, data):
+async def register_admin(company_id, ws, data):
     admins[data["chat_id"]] = ws

@@ -1,6 +1,7 @@
 from sanic_jwt import exceptions
 from models.company import Company
 import bcrypt
+from models.company import Company
 
 def hash_password(password):
     # Convert the password to bytes, then hash
@@ -26,6 +27,19 @@ async def authenticate(request, *args, **kwargs):
     if user is None:
         raise exceptions.AuthenticationFailed("User not found.")
 
-    if check_password(password, user.password):
+    if not check_password(password, user.password):
         raise exceptions.AuthenticationFailed("Password is incorrect.")
-    return user
+    print(user)
+    return dict(user_id=str(user._id))
+
+async def retrieve_user(request, payload, *args, **kwargs):
+    if payload:
+        user_id = payload.get('user_id', None)
+        print(user_id)
+        user = await Company.get_by_id(user_id)
+        return user
+
+    else:
+        return None
+
+

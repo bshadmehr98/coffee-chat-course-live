@@ -1,4 +1,5 @@
 from sanic_motor import BaseModel
+from bson import ObjectId
 import dataclasses
 from models.base import BaseDataClass
 from typing import Optional, List
@@ -21,8 +22,20 @@ class Chat(BaseDataClass):
     session_token: str
     created_at: Optional[dt.datetime]
     messages: Optional[List[Message]]
+    company_id: str
     
     MODEL = ChatModel
+
+
+    def to_dict(self):
+        data = super().to_dict()
+        return data
+
+    def to_mongo(self):
+        data = super().to_dict()
+        data["company_id"] = ObjectId(data["company_id"])
+        return data
+
     
     @classmethod
     async def get_by_token(cls, token):
@@ -33,6 +46,7 @@ class Chat(BaseDataClass):
     @classmethod
     def to_object(cls, data):
         chat = Chat(
+            company_id=str(data.company_id),
             session_token=data.session_token,
             created_at=data.created_at,
             messages=[]

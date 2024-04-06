@@ -2,7 +2,7 @@ from sanic import Sanic
 from sanic.response import text
 from sanic_motor import BaseModel
 from sanic_jwt import initialize
-from auth import authenticate
+from auth import authenticate, retrieve_user
 
 app = Sanic("CoffeeChat")
 
@@ -17,5 +17,5 @@ app.static('/static', './static')
 
 BaseModel.init_app(app)
 
-initialize(app, authenticate)
+initialize(app, authenticate, retrieve_user=retrieve_user)
 

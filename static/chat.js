@@ -257,7 +257,7 @@ function on_socket_open(){
 
 function start_socket_connection(){
     load_chat_id()
-    socket = new WebSocket("ws://localhost:8000/feed")
+    socket = new WebSocket("ws://localhost:8000/feed/" + token)
     socket.addEventListener('message', on_new_message)
     socket.addEventListener('open', on_socket_open)
 
