@@ -42,17 +42,17 @@ async def company_get_id(request, user):
     print(user)
     return text(str(user._id))
 
-@app.get("/")
+@app.get("/<token:str>")
 @app.ext.template("admin/chat_list.html")
-async def admin_chat_list(request):
-    chats = await Chat.get_unread_chats()
+async def admin_chat_list(request, token):
+    chats = await Chat.get_unread_chats(company_id=token)
     return {"chats": chats}
 
 @app.get("/admin/chats/<token:str>")
 @app.ext.template("admin/chat_single.html")
 async def admin_single_chat(request, token):
     chat = await Chat.get_by_token(token)
-    return {"chat": chat}
+    return {"chat": chat, "company_id": str(chat.company_id)}
 
 @app.websocket("/feed/<token:str>")
 async def feed(request, ws: Websocket, token):

@@ -7,6 +7,8 @@
 
     <body>
       <p>{{ chat }}</p>
+      <p>{{company_id}}</p>
+      <p>swdvcwedvw</p>
         <ul id="chat-messages">
             {% for item in chat.messages %}
             <li {% if item.from_user %}style="color: blue"{% endif %} >{{ item.ts }} - {{ item.text }}</li>
@@ -102,7 +104,8 @@ function on_socket_open(event){
 }
 
 function start_socket_connection(){
-    socket = new WebSocket("ws://localhost:8000/feed")
+  var company_id = "{{company_id}}"
+    socket = new WebSocket("ws://localhost:8000/feed/" + company_id)
     socket.addEventListener('message', on_new_message)
     socket.addEventListener('open', on_socket_open)
 
